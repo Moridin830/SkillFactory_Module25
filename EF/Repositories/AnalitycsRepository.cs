@@ -14,144 +14,30 @@ namespace EF
         private AppContext db;
         private UserRepository userRepository;
         private BookRepository bookRepository;
+        private AutorRepository autorRepository;
+        private GenreRepository genreRepository;
 
         public AnalitycsRepository(AppContext db)
         {
             this.db = db;
             userRepository = new UserRepository(db);
             bookRepository = new BookRepository(db);
+            autorRepository = new AutorRepository(db);
+            genreRepository = new GenreRepository(db);
         }
 
-        public void GetBooksOfCertainGenre()
+        public int GetBooksCount()
         {
+            var Query =
+            from book in db.Books
+            select book;
 
+            return Query.ToList().Count();
         }
 
-        public void GetBooksOfCertainGenre()
+        public void GetBooksCountForAutor()
         {
-
-        }
-
-        public void GetBooksCount()
-        {
-
-        }
-
-        public void GetBooksCount(Autor autor)
-        {
-
-        }
-
-        public void GetBooksCount(Genre genre)
-        {
-
-        }
-
-        public void GetBooksCount(Autor autor, Genre genre)
-        {
-
-        }
-
-        private List<Book> GetBooks(Genre genre)
-        {
-
-        }
-
-        private List<Book> GetBooks(Genre genre, int releaseYear)
-        {
-
-        }
-
-        private List<Book> GetBooks(Genre genre, int startYear, int endYear)
-        {
-
-        }
-
-        public bool HaveABook(Autor autor)
-        {
-
-        }
-        public void GetUserByID()
-        {
-            var stringId = QuestionMessage.Question("Введите идентификатор (id) пользователя:");
-            
-            int id;
-            bool result = int.TryParse(stringId, out id);
-            
-            if (!result)
-            {
-                AlertMessage.Show("Введено некорректное значение!");
-                return;
-            }
-            
-            User user = GetUser(id);
-            if (user.Id == 0)
-            {
-                AlertMessage.Show("Пользователь с таким идентификатором в базе отсутствует.");
-                return;
-            }
-            
-            ShowUserData(user);
-        }
-
-        public void GetAllUsers()
-        {
-            var users = db.Users.ToList();
-            if (users.Count == 0)
-            {
-                AlertMessage.Show("В базе отсутствуют пользователи.");
-                return;
-            }
-
-            int currentUser = 1;
-            foreach (var user in users)
-            {
-                Console.WriteLine("+------------------------ Пользователь #{currentUser}------------------------+", currentUser);
-                ShowUserData(user);
-                currentUser++;
-            }
-        }
-
-        public void ShowUserData(User user)
-        {
-            Console.WriteLine("Информация о пользователе:");
-            Console.WriteLine("Идентификатор: {0}", user.Id);
-            Console.WriteLine("Имя: {0}", user.Name);
-            Console.WriteLine("Email: {0}", user.Email);
-        }
-
-        private User GetUser(int id)
-        {
-            var usersQuery =
-            from user in db.Users
-            where user.Id == id
-            select user;
-
-            User foundUser = usersQuery.FirstOrDefault() ?? new User();
-
-            return foundUser;
-        }
-
-        public User GetUser()
-        {
-
-            var stringId = QuestionMessage.Question("Введите идентификатор (id) пользователя:");
-
-            int id;
-            bool result = int.TryParse(stringId, out id);
-
-            if (!result)
-            {
-                AlertMessage.Show("Введено некорректное значение!");
-                return GetUser();
-            }
-
-            User user = GetUser(id);
-            return user;
-        }
-        public void UpdateUserData()
-        {
-            var stringId = QuestionMessage.Question("Введите идентификатор (id) пользователя:");
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) автора:");
 
             int id;
             bool result = int.TryParse(stringId, out id);
@@ -162,40 +48,24 @@ namespace EF
                 return;
             }
 
-            User user = GetUser(id);
-            if (user.Id == 0)
+            Autor autor = autorRepository.GetAutor(id);
+            if (autor.Id == 0)
             {
-                AlertMessage.Show("Пользователь с таким идентификатором в базе отсутствует.");
+                AlertMessage.Show("Автор с таким идентификатором в базе отсутствует.");
                 return;
             }
 
-            user.Name = QuestionMessage.Question("Введите имя пользователя:");
+            var Query =
+            from book in db.Books
+            where book.Autor == autor
+            select book;
 
-            Console.Write("EMail:");
-            user.Email = QuestionMessage.Question("Введите EMail пользователя:");
-
-            db.Users.Add(user);
-            db.SaveChanges();
-            SuccessMessage.Show("Данные успешно обновлены!");
+            SuccessMessage.Show("В базе имеется " + Query.Count().ToString() + " книг автора " + autor.Name);
         }
 
-        public void AddNewUser()
+        public void GetBooksCountForGenre()
         {
-            User user = new User();
-            
-            user.Name = QuestionMessage.Question("Введите имя пользователя:");
-
-            user.Email = QuestionMessage.Question("Введите EMail пользователя:");
-
-            db.Users.Add(user);
-            db.SaveChanges();
-
-            SuccessMessage.Show("Пользователь успешно добавлен.");
-        }
-
-        public void RemoveUser()
-        {
-            var stringId = QuestionMessage.Question("Введите идентификатор (id) пользователя:");
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) жанра:");
 
             int id;
             bool result = int.TryParse(stringId, out id);
@@ -206,17 +76,269 @@ namespace EF
                 return;
             }
 
-            User user = GetUser(id);
-            if (user.Id == 0)
+            Genre genre = genreRepository.GetGenre(id);
+            if (genre.Id == 0)
             {
-                AlertMessage.Show("Пользователь с таким идентификатором в базе отсутствует.");
+                AlertMessage.Show("Жанр с таким идентификатором в базе отсутствует.");
+                return;
+            }
+            
+            var Query =
+            from book in db.Books
+            where book.Genre == genre
+            select book;
+
+            SuccessMessage.Show("В базе имеется " + Query.Count().ToString() + " жанра " + genre.Name);
+        }
+
+        public void GetBooksOfGenre()
+        {
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) жанра:");
+
+            int id;
+            bool result = int.TryParse(stringId, out id);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
                 return;
             }
 
-            db.Users.Remove(user);
-            db.SaveChanges();
+            Genre genre = genreRepository.GetGenre(id);
+            if (genre.Id == 0)
+            {
+                AlertMessage.Show("Жанр с таким идентификатором в базе отсутствует.");
+                return;
+            }
 
-            SuccessMessage.Show("Пользователь успешно удален.");
+            var Query =
+            from book in db.Books
+            where book.Genre == genre
+            select book;
+
+            foreach(var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+        }
+
+        public void GetBooksOfGenreAndReleaseYear()
+        {
+
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) жанра:");
+
+            int id, releaseYear;
+            bool result = int.TryParse(stringId, out id);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return;
+            }
+
+            Genre genre = genreRepository.GetGenre(id);
+            if (genre.Id == 0)
+            {
+                AlertMessage.Show("Жанр с таким идентификатором в базе отсутствует.");
+                return;
+            }
+
+            stringId = QuestionMessage.Question("Введите год выхода книги:");
+
+            result = int.TryParse(stringId, out releaseYear);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return;
+            }
+
+            var Query =
+            from book in db.Books
+            where (book.Genre == genre) && (book.ReleaseYear == releaseYear)
+            select book;
+
+            foreach(var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+        }
+
+        public void ListBooksOverPeriod()
+        {
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) жанра:");
+
+            int id, startYear, endYear;
+            bool result = int.TryParse(stringId, out id);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return;
+            }
+
+            Genre genre = genreRepository.GetGenre(id);
+            if (genre.Id == 0)
+            {
+                AlertMessage.Show("Автор с таким идентификатором в базе отсутствует.");
+                return;
+            }
+
+            stringId = QuestionMessage.Question("Введите начальный год периода:");
+
+            result = int.TryParse(stringId, out startYear);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return;
+            }
+
+            stringId = QuestionMessage.Question("Введите конечный год периода:");
+
+            result = int.TryParse(stringId, out endYear);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return;
+            }
+
+            var Query =
+            from book in db.Books
+            where (book.Genre == genre) && ((book.ReleaseYear >= startYear) ^ (book.ReleaseYear <= endYear))
+            select book;
+
+            foreach (var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+        }
+
+        public void GetBooksTitleAscending()
+        {
+            var Query =
+            from book in db.Books
+            orderby book.Title
+            select book;
+
+            foreach (var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+
+        }
+
+        public void GetBooksTitleDescending()
+        {
+            var Query =
+            from book in db.Books
+            orderby book.Title descending
+            select book;
+
+            foreach (var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+
+        }
+
+        public void GetBooksReleaseYearAscending()
+        {
+            var Query =
+            from book in db.Books
+            orderby book.ReleaseYear
+            select book;
+
+            foreach (var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+
+        }
+
+        public void GetBooksReleaseYearADescending()
+        {
+            var Query =
+            from book in db.Books
+            orderby book.ReleaseYear descending
+            select book;
+
+            foreach (var book in Query)
+            {
+                SuccessMessage.Show(book.Title);
+            }
+
+        }
+
+        public void ThereIsABookInTheLibrary()
+        {
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) автора:");
+
+            int id;
+            bool result = int.TryParse(stringId, out id);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return;
+            }
+
+            Autor autor = autorRepository.GetAutor(id);
+            if (autor.Id == 0)
+            {
+                AlertMessage.Show("Автор с таким идентификатором в базе отсутствует.");
+                return;
+            }
+
+            var bookTitle = QuestionMessage.Question("Введите наименование книги:");
+
+            var Query =
+            from book in db.Books
+            where (book.Autor == autor) && (book.Title == bookTitle)
+            select book;
+
+            if (Query.Count() > 0) { SuccessMessage.Show("Такая книга есть в библиотеке."); return; }
+
+            SuccessMessage.Show("Такая книга в библиотеке отсутствует.");
+        }
+
+        public void UserHasBook()
+        {
+            User user = userRepository.GetUser();
+            Book book = bookRepository.GetBook();
+            
+            var Query =
+            from record in db.Logbook
+            where (record.User == user) && (record.Book == book)
+            select record;
+
+            if (Query.Count() > 0) { SuccessMessage.Show("Такая книга есть в библиотеке."); return; }
+
+            SuccessMessage.Show("Такая книга в библиотеке отсутствует.");
+        }
+
+        public void NumberOfBooksUser()
+        {
+            User user = userRepository.GetUser();
+
+            var Query =
+            from record in db.Logbook
+            where record.User == user
+            select record;
+
+            SuccessMessage.Show("Книг на руках у пользователя: " + Query.Count().ToString());
+        }
+
+        public void LatestPublishedBook()
+        {
+            var Query =
+            from book in db.Books
+            orderby book.ReleaseYear descending
+            select book;
+
+            var ourBook = Query.FirstOrDefault();
+            SuccessMessage.Show("Последняя вышедшая книга: " + ourBook.Title + "; год выхода: " + ourBook.ReleaseYear.ToString());
         }
     }
 }

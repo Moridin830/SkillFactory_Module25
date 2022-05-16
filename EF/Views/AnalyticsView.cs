@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EF.Repositories;
 
 namespace EF.Views
 {
     public class AnalyticsView
     {
-        public BookRepository BookRepository { get; set; }
+        public AnalitycsRepository AnalitycsRepository { get; set; }
 
         public void Show(AppContext db)
         {
-            BookRepository = new BookRepository(db);
+            AnalitycsRepository = new AnalitycsRepository(db);
             while (true)
             {
                 Console.WriteLine("+--------------- Работа с книгами ---------------------------+");
@@ -36,36 +37,53 @@ namespace EF.Views
                 {
                     case "1":
                         {
-                            BookRepository.GetBookByID();
+                            AnalitycsRepository.ListBooksOverPeriod();
                             break;
                         }
                     case "2":
                         {
-                            BookRepository.GetAllBooks();
+                            AnalitycsRepository.GetBooksCountForAutor();
                             break;
                         }
 
                     case "3":
                         {
-                            BookRepository.AddNewBook();
+                            AnalitycsRepository.GetBooksCountForGenre();
                             break;
                         }
 
                     case "4":
                         {
-                            BookRepository.UpdateBook();
+                            AnalitycsRepository.ThereIsABookInTheLibrary();
                             break;
                         }
 
                     case "5":
                         {
-                            BookRepository.RemoveBook();
+                            AnalitycsRepository.UserHasBook();
                             break;
                         }
 
                     case "6":
                         {
-                            BookRepository.IssueBookToUser();
+                            AnalitycsRepository.NumberOfBooksUser();
+                            break;
+                        }
+                    case "7":
+                        {
+                            AnalitycsRepository.LatestPublishedBook();
+                            break;
+                        }
+
+                    case "8":
+                        {
+                            AnalitycsRepository.GetBooksTitleAscending();
+                            break;
+                        }
+
+                    case "9":
+                        {
+                            AnalitycsRepository.GetBooksReleaseYearADescending();
                             break;
                         }
                 }

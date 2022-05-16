@@ -15,7 +15,7 @@ namespace EF.Repositories
 
         public Autor GetAutor()
         {
-            var stringId = QuestionMessage.Question("Введите идентификатор (id) жанра:");
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) автора:");
 
             int id;
             bool result = int.TryParse(stringId, out id);
@@ -40,6 +40,18 @@ namespace EF.Repositories
             Autor foundAutor = Query.FirstOrDefault() ?? new Autor();
 
             return foundAutor;
+        }
+
+        public void AddAutor(AppContext db)
+        {
+            Autor autor = new();
+
+            autor.Name = QuestionMessage.Question("Введите имя автора:");
+
+            db.Autors.Add(autor);
+            db.SaveChanges();
+
+            SuccessMessage.Show("Автор добавлен успешно!");
         }
     }
 }

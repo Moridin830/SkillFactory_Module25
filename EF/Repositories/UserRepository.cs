@@ -65,7 +65,7 @@ namespace EF
             Console.WriteLine("Email: {0}", user.Email);
         }
 
-        private User GetUser(int id)
+        public User GetUser(int id)
         {
             var usersQuery =
             from user in db.Users

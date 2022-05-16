@@ -10,7 +10,7 @@ namespace EF.Helpers
     {
         public static string Question(string Message)
         {
-            Console.Write(Message);
+            Console.Write(Message + " ");
             string answer = Console.ReadLine() ?? "";
             
             return answer;

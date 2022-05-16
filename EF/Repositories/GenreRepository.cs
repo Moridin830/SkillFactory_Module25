@@ -23,7 +23,7 @@ namespace EF.Repositories
             if (!result)
             {
                 AlertMessage.Show("Введено некорректное значение!");
-                return GetGenre();
+                return new Genre();
             }
 
             Genre genre = GetGenre(id);
@@ -40,6 +40,18 @@ namespace EF.Repositories
             Genre foundGenre = Query.FirstOrDefault() ?? new Genre();
 
             return foundGenre;
+        }
+
+        public void AddGenre(AppContext db)
+        {
+            Genre genre = new();
+
+            genre.Name = QuestionMessage.Question("Введите наименование жанра:");
+
+            db.Genres.Add(genre);
+            db.SaveChanges();
+
+            SuccessMessage.Show("Жанр добавлен успешно!");
         }
     }
 }

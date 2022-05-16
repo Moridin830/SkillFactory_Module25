@@ -13,6 +13,7 @@ namespace EF
         public static MainView mainView;
         static void Main(string[] args)
         {
+            MainView mainView = new MainView();
             using (var db = new AppContext())
             {
                 mainView.Show(db);

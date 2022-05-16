@@ -66,7 +66,7 @@ namespace EF
             Console.WriteLine("Год издания: {0}", book.ReleaseYear);
         }
 
-        private Book GetBook(int id)
+        public Book GetBook(int id)
         {
             var Query =
             from book in db.Books
@@ -77,6 +77,25 @@ namespace EF
 
             return foundbook;
         }
+
+        public Book GetBook()
+        {
+            var stringId = QuestionMessage.Question("Введите идентификатор (id) книги:");
+
+            int id;
+            bool result = int.TryParse(stringId, out id);
+
+            if (!result)
+            {
+                AlertMessage.Show("Введено некорректное значение!");
+                return GetBook();
+            }
+
+            Book book = GetBook(id);
+            
+            return book;
+        }
+
         private void UpdateBookData(ref Book book)
         {
             AutorRepository autorRepository = new(db);
